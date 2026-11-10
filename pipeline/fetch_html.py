@@ -25,7 +25,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 FILINGS = os.path.join(DATA, "filings")
-UA = {"User-Agent": "Derek Kramer research dkramer95@gmail.com"}
+UA = {"User-Agent": os.environ.get(
+    "SEC_USER_AGENT", "portfolio-research (set SEC_USER_AGENT)")}
 WORKERS = 6
 CUTOFF = "2021-01-01"
 MAX_FILINGS = 6

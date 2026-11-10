@@ -23,7 +23,8 @@ from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
-UA = {"User-Agent": "Derek Kramer research dkramer95@gmail.com"}
+UA = {"User-Agent": os.environ.get(
+    "SEC_USER_AGENT", "portfolio-research (set SEC_USER_AGENT)")}
 CONCEPTS = [
     "RevenueFromContractWithCustomerExcludingAssessedTax",
     "Revenues",

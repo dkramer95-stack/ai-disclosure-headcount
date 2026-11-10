@@ -30,7 +30,8 @@ import random
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 FILINGS = os.path.join(DATA, "filings")
-UA = {"User-Agent": "Derek Kramer research dkramer95@gmail.com"}
+UA = {"User-Agent": os.environ.get(
+    "SEC_USER_AGENT", "portfolio-research (set SEC_USER_AGENT)")}
 UNIVERSE_URL = ("https://raw.githubusercontent.com/datasets/s-and-p-500-companies/"
                 "main/data/constituents.csv")
 CUTOFF, MAX_FILINGS, WORKERS = "2021-01-01", 6, 8

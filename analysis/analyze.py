@@ -5,8 +5,7 @@ Reads data/extracted.csv (S&P 500 10-Ks, FY2021-FY2026), builds a firm-year
 panel, writes analysis/stats.json, regenerates figures/fig1..fig4.svg, and
 prints a summary.
 
-Runs on the bundled runtime (pandas + numpy):
-  /Users/derek/.dsh/dsh-runtimes/dsh-primary-runtime/dependencies/python/bin/python3 analysis/analyze.py
+Requires pandas and numpy (any Python 3.10+ environment).
 """
 from __future__ import annotations
 
