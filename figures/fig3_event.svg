@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" font-family="Helvetica,Arial,sans-serif" role="img" aria-label="Headcount growth around first AI disclosure">
+<rect width="900" height="340" fill="#fff"/>
+<text x="58" y="20" font-size="14" font-weight="700">Headcount growth around first AI disclosure</text>
+<line x1="58" y1="306.0" x2="680" y2="306.0" stroke="#E6E6E6"/>
+<text x="50" y="310.0" font-size="10" fill="#666" text-anchor="end">-6</text>
+<line x1="58" y1="238.0" x2="680" y2="238.0" stroke="#E6E6E6"/>
+<text x="50" y="242.0" font-size="10" fill="#666" text-anchor="end">-2</text>
+<line x1="58" y1="170.0" x2="680" y2="170.0" stroke="#E6E6E6"/>
+<text x="50" y="174.0" font-size="10" fill="#666" text-anchor="end">2</text>
+<line x1="58" y1="102.0" x2="680" y2="102.0" stroke="#E6E6E6"/>
+<text x="50" y="106.0" font-size="10" fill="#666" text-anchor="end">6</text>
+<line x1="58" y1="34.0" x2="680" y2="34.0" stroke="#E6E6E6"/>
+<text x="50" y="38.0" font-size="10" fill="#666" text-anchor="end">11</text>
+<line x1="58" y1="207.5" x2="680" y2="207.5" stroke="#999" stroke-dasharray="3,3"/>
+<text x="58.0" y="322" font-size="9" fill="#666" text-anchor="middle">-2</text>
+<text x="182.4" y="322" font-size="9" fill="#666" text-anchor="middle">-1</text>
+<text x="306.8" y="322" font-size="9" fill="#666" text-anchor="middle">0</text>
+<text x="431.2" y="322" font-size="9" fill="#666" text-anchor="middle">1</text>
+<text x="555.6" y="322" font-size="9" fill="#666" text-anchor="middle">2</text>
+<text x="680.0" y="322" font-size="9" fill="#666" text-anchor="middle">3</text>
+<path d="M58.0,70.2 L182.4,166.7 L306.8,283.3 L431.2,187.8 L555.6,137.5 L680.0,56.7" fill="none" stroke="#1F4E79" stroke-width="2"/>
+<line x1="694" y1="40" x2="714" y2="40" stroke="#1F4E79" stroke-width="2"/>
+<text x="718" y="43" font-size="10" fill="#333">Mean growth</text>
+<text x="58" y="334" font-size="9" fill="#666">Log change in employees, per cent. Event 0 = first 10-K with 3+ AI mentions.</text>
+</svg>
