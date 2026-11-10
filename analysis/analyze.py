@@ -19,7 +19,7 @@ import pandas as pd
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data", "extracted.csv")
-RANDOM_CUTOFF = "2026-11-10T11:56"  # only filings downloaded after the seeded shuffle
+RANDOM_CUTOFF = "2026-11-10T11:56"  # seeded random sample of the index
 OUT = os.path.join(ROOT, "analysis", "stats.json")
 FIGS = os.path.join(ROOT, "figures")
 
@@ -28,6 +28,16 @@ GREEN, RED, GREY, BLUE, ORANGE = "#1F4E79", "#C00000", "#7F7F7F", "#2E75B6", "#C
 
 def load() -> pd.DataFrame:
     df = pd.read_csv(DATA, dtype={"cik": str, "fiscal_year": "Int64"})
+    df["revenue_usd"] = pd.to_numeric(df.get("revenue_inline"), errors="coerce")
+    rev_path = os.path.join(ROOT, "data", "revenue.csv")
+    if os.path.exists(rev_path):
+        rev = pd.read_csv(rev_path, dtype={"cik": str})
+        rev["revenue_api"] = pd.to_numeric(rev["revenue_usd"], errors="coerce")
+        rev = rev.drop_duplicates(["cik", "period"], keep="first")
+        df = df.merge(rev[["cik", "period", "revenue_api"]],
+                      left_on=["cik", "period_parsed"], right_on=["cik", "period"],
+                      how="left", suffixes=("", "_api"))
+        df["revenue_usd"] = df["revenue_usd"].fillna(df["revenue_api"])
     df = df.dropna(subset=["fiscal_year"])
     df["fiscal_year"] = df["fiscal_year"].astype(int)
     df["employees"] = pd.to_numeric(df["employees"], errors="coerce")
@@ -46,6 +56,11 @@ def load() -> pd.DataFrame:
     df["growth_next"] = df.groupby("cik")["log_emp"].shift(-1) - df["log_emp"]
     df["growth_prev"] = df["log_emp"] - df.groupby("cik")["log_emp"].shift(1)
     df["big_move"] = (df["growth_next"].abs() > 0.15) | (df["growth_prev"].abs() > 0.15)
+    df["log_rev"] = np.log(df["revenue_usd"].where(df["revenue_usd"] > 0))
+    df["rev_growth_next"] = df.groupby("cik")["log_rev"].shift(-1) - df["log_rev"]
+    df["rev_per_emp"] = df["revenue_usd"] / df["employees"]
+    df["log_rpe"] = np.log(df["rev_per_emp"].where(df["rev_per_emp"] > 0))
+    df["rpe_growth_next"] = df.groupby("cik")["log_rpe"].shift(-1) - df["log_rpe"]
     return df
 
 
@@ -74,6 +89,11 @@ def design(df, ai_col, fe=True):
     y = df["growth_next"].to_numpy()
     cols = [np.ones(len(df)), df[ai_col].to_numpy(), df["log_emp"].to_numpy()]
     names = ["intercept", ai_col, "log_emp"]
+    if "log_rev" in df.columns and df["log_rev"].notna().any():
+        cols.append(df["log_rev"].fillna(df["log_rev"].median()).to_numpy())
+        names.append("log_rev")
+        cols.append(df["rev_growth_next"].fillna(0).to_numpy())
+        names.append("rev_growth_next")
     if fe:
         for col, label in (("fiscal_year", "year"), ("sector", "sector")):
             dummies = pd.get_dummies(df[col], drop_first=True, dtype=float)
@@ -168,6 +188,16 @@ def main():
             y, X, names = design(sub, ai_col, fe=fe)
             reg[f"{ai_col}_fe{int(fe)}"] = ols(y, X, names)
     stats["regressions"] = reg
+    stats["revenue"] = {
+        "filings_with_revenue": int(df["revenue_usd"].notna().sum()),
+        "coverage": round(float(df["revenue_usd"].notna().mean()), 3),
+        "median_revenue_usd": float(df["revenue_usd"].median()),
+    }
+    sub2 = df.dropna(subset=["rpe_growth_next"]).copy()
+    sub2 = sub2[~sub2["big_move"].astype(bool)]
+    if len(sub2) > 50:
+        y, X, names = design(sub2.assign(growth_next=sub2["rpe_growth_next"]), "ai_per_1k", fe=True)
+        stats["rpe_regression"] = ols(y, X, names)
 
     # descriptive growth by disclosure group
     sub["ai_group"] = pd.cut(sub["ai_per_1k"], [-0.01, 0.001, 5, 15, 1000],

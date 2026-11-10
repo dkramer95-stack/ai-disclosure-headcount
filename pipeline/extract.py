@@ -58,6 +58,67 @@ def to_text(html: str) -> str:
     return re.sub(r"\s+", " ", text)
 
 
+MONTHS = {m: i for i, m in enumerate(
+    ["January", "February", "March", "April", "May", "June", "July", "August",
+     "September", "October", "November", "December"], 1)}
+
+
+def parse_period(text: str):
+    """Fiscal year end from the cover page, ISO format."""
+    m = re.search(r"(?i)fiscal year ended\s+([A-Z][a-z]+)\s+(\d{1,2}),?\s*(\d{4})", text)
+    if not m:
+        return ""
+    month = MONTHS.get(m.group(1).capitalize())
+    if not month:
+        return ""
+    return f"{int(m.group(3)):04d}-{month:02d}-{int(m.group(2)):02d}"
+
+
+REV_NAMES = ("Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax",
+             "RevenueFromContractWithCustomerIncludingAssessedTax", "SalesRevenueNet")
+
+
+def parse_revenue(html: str, period: str):
+    """Annual revenue from inline XBRL, matched to the fiscal-year end."""
+    contexts = {}
+    for cm in re.finditer(r"(?is)<xbrli:context[^>]*id=\"([^\"]+)\".*?</xbrli:context>", html):
+        cid = cm.group(1)
+        body = cm.group(0)
+        start = re.search(r"(?is)<xbrli:startdate>([^<]+)</xbrli:startdate>", body)
+        end = re.search(r"(?is)<xbrli:enddate>([^<]+)</xbrli:enddate>", body)
+        if start and end:
+            contexts[cid] = (start.group(1).strip(), end.group(1).strip())
+    best = None
+    for name in REV_NAMES:
+        for rm in re.finditer(
+                r'(?is)<ix:nonfraction[^>]*name="us-gaap:%s"[^>]*>(.*?)</ix:nonfraction>' % name, html):
+            tag = rm.group(0)
+            cid = re.search(r'contextref="([^"]+)"', tag, re.I)
+            scale = re.search(r'scale="(-?\d+)"', tag, re.I)
+            if not cid or cid.group(1) not in contexts:
+                continue
+            start, end = contexts[cid.group(1)]
+            try:
+                from datetime import date
+                days = (date.fromisoformat(end) - date.fromisoformat(start)).days
+            except ValueError:
+                continue
+            if not (350 <= days <= 380):
+                continue
+            raw = re.sub(r"[^0-9.]", "", re.sub(r"<[^>]+>", "", rm.group(1)))
+            if not raw:
+                continue
+            try:
+                val = float(raw) * (10 ** int(scale.group(1))) if scale else float(raw)
+            except ValueError:
+                continue
+            score = abs((date.fromisoformat(end) - date.fromisoformat(period)).days) if period else 0
+            if best is None or score < best[0]:
+                best = (score, val, name)
+            break
+    return (best[1], best[2]) if best else (None, None)
+
+
 def employees(text: str):
     for pat in EMP_PATTERNS:
         for m in pat.finditer(text):
@@ -80,7 +141,7 @@ def main():
               "period", "fiscal_year", "words", "employees", "employee_pattern",
               "artificial_intelligence", "ai_token", "machine_learning", "generative",
               "llm", "chatgpt", "agentic", "ai_total", "ai_per_1000_words",
-              "workforce_ai", "file_mtime", "sha256"]
+              "workforce_ai", "file_mtime", "period_parsed", "revenue_inline", "revenue_concept", "sha256"]
     done = set()
     if os.path.exists(out_path):
         with open(out_path, newline="") as fh:
@@ -113,7 +174,9 @@ def main():
                         wf += 1
 
             emp, pat = employees(text)
-            year = (m["period"] or "")[:4]
+            period = m["period"] or parse_period(text)
+            year = (period or "")[:4]
+            rev_val, rev_name = parse_revenue(html, period)
             w.writerow({
                 "ticker": m["ticker"], "company": m["company"], "sector": m["sector"],
                 "cik": m["cik"], "accession": m["accession"],
@@ -128,6 +191,9 @@ def main():
                 "ai_total": ai_total,
                 "ai_per_1000_words": round(1000 * ai_total / words, 3) if words else "",
                 "workforce_ai": wf,
+                "period_parsed": period,
+                "revenue_inline": rev_val if rev_val else "",
+                "revenue_concept": rev_name or "",
                 "file_mtime": __import__("datetime").datetime.fromtimestamp(
                     os.path.getmtime(path)).isoformat(timespec="seconds"),
                 "sha256": hashlib.sha256(text.encode()).hexdigest()[:16],

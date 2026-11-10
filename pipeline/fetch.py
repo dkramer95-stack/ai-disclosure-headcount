@@ -33,18 +33,25 @@ FILINGS = os.path.join(DATA, "filings")
 UA = {"User-Agent": "Derek Kramer research dkramer95@gmail.com"}
 UNIVERSE_URL = ("https://raw.githubusercontent.com/datasets/s-and-p-500-companies/"
                 "main/data/constituents.csv")
-CUTOFF, MAX_FILINGS, WORKERS = "2021-01-01", 6, 16
+CUTOFF, MAX_FILINGS, WORKERS = "2021-01-01", 6, 8
 
 lock = threading.Lock()
 
 
-def get(url, retries=4):
+def get(url, retries=5):
     for attempt in range(retries):
         try:
             req = urllib.request.Request(url, headers=UA)
             with urllib.request.urlopen(req, timeout=90) as fh:
                 return fh.read()
-        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+        except urllib.error.HTTPError as exc:
+            if exc.code == 429:
+                time.sleep(15 * (attempt + 1))
+                continue
+            if attempt == retries - 1:
+                raise
+            time.sleep(0.8 * (attempt + 1))
+        except (urllib.error.URLError, TimeoutError):
             if attempt == retries - 1:
                 raise
             time.sleep(0.8 * (attempt + 1))
@@ -79,6 +86,7 @@ def main():
         except Exception as exc:  # noqa: BLE001
             print(f"SKIP {r['Symbol']}: {exc}", flush=True)
             continue
+        time.sleep(0.55)  # stay under the data.sec.gov rate limit
         rec = sub["filings"]["recent"]
         picks = []
         for j, form in enumerate(rec["form"]):

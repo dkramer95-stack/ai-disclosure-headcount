@@ -12,7 +12,7 @@ November 2026
 
 Firms now describe their use of artificial intelligence in the annual report they file under securities-law liability. That disclosure is free, public, and available for every U.S. public company. It is rarely used as a measure of AI adoption in the employment literature, which relies instead on proprietary job-posting data or on equity valuations. This paper tests whether 10-K language carries information about the thing that matters: whether the firm's workforce grew or shrank.
 
-I extract headcount and a seven-term AI lexicon from 643 10-K filings for fiscal years 2021 to 2026, a random sample of 106 of the 503 S&P 500 constituents. Headcount is recovered from 79 per cent of filings. Three results follow. Disclosure became near-universal: 38 per cent of firms mentioned an AI term in fiscal 2021, 73 per cent in 2023, 95 per cent in 2025. The share mentioning AI within 250 characters of workforce language rose from 24 per cent to 67 per cent. But the association with headcount is small and, where it exists, positive: within-firm, one standard deviation more AI language is associated with 1.3 percentage points faster headcount growth (t = 2.22), and workforce-adjacent language is statistically indistinguishable from zero (t = 0.44).
+I extract headcount, revenue and a seven-term AI lexicon from 643 10-K filings for fiscal years 2021 to 2026, a random sample of 106 of the 503 S&P 500 constituents. Headcount is recovered from 79 per cent of filings. Three results follow. Disclosure became near-universal: 38 per cent of firms mentioned an AI term in fiscal 2021, 73 per cent in 2023, 95 per cent in 2025. The share mentioning AI within 250 characters of workforce language rose from 24 per cent to 67 per cent. But the association with headcount is small and, where it exists, positive: within-firm, one standard deviation more AI language is associated with 1.25 percentage points faster headcount growth after controlling for revenue growth (t = 2.18), and workforce-adjacent language is statistically indistinguishable from zero (t = 0.36). Revenue per employee moves the other way: more AI language predicts slower revenue-per-employee growth (t = −2.09), consistent with firms expanding headcount ahead of revenue.
 
 The paper contributes a public pipeline and a negative result. 10-K AI language is a measure of narrative, not of labour substitution, and should not be used as an adoption proxy in displacement research. The association it does produce points the wrong way for the displacement story: firms that write more about AI grow slightly faster, not slower.
 
@@ -131,20 +131,24 @@ The term mix is dominated by the token "AI", not by the phrase "artificial intel
 
 | Specification | n | Coefficient | SE | t |
 |---|---|---|---|---|
-| Cross-section, year + sector FE, all AI | 305 | +0.0161 | 0.0113 | 1.43 |
-| Firm + year FE, all AI | 305 | +0.0311 | 0.0140 | 2.22 |
-| Cross-section, workforce-adjacent | 305 | +0.0152 | 0.0796 | 0.19 |
-| Firm + year FE, workforce-adjacent | 305 | +0.0324 | 0.0728 | 0.44 |
+| Cross-section, year + sector FE, all AI, revenue controls | 305 | +0.0158 | 0.0113 | 1.41 |
+| Firm + year FE, all AI, revenue controls | 305 | +0.0306 | 0.0141 | 2.18 |
+| Cross-section, workforce-adjacent, revenue controls | 305 | +0.0121 | 0.0806 | 0.15 |
+| Firm + year FE, workforce-adjacent, revenue controls | 305 | +0.0268 | 0.0738 | 0.36 |
+
+Both specifications include log revenue and next-year revenue growth, so the estimate is not driven by growing firms both writing more and hiring more. Revenue coverage is 98.2% of filings, extracted from inline XBRL in the filing itself.
 
 The cross-sectional association is positive and imprecise. Firms that write more about AI grow somewhat faster in the following year, not slower, but the estimate cannot distinguish the effect from zero at conventional thresholds.
 
 ### 4.4 Within firm: a small positive association
 
-The firm-fixed-effects estimate is +0.0311 with a standard error of 0.0140, a t-statistic of 2.22. The standard deviation of AI intensity in the sample is 0.409 mentions per thousand words, so one standard deviation more AI language within a firm is associated with about 1.3 percentage points faster headcount growth the following year.
+The firm-fixed-effects estimate is +0.0306 with a standard error of 0.0141, a t-statistic of 2.18, with log revenue and next-year revenue growth included as controls. The standard deviation of AI intensity in the sample is 0.409 mentions per thousand words, so one standard deviation more AI language within a firm is associated with about 1.25 percentage points faster headcount growth the following year.
 
-That is the opposite sign to the displacement hypothesis. It is also small: 1.3 percentage points is within the normal year-to-year variation in a large firm's headcount. The honest reading is that the association is not a displacement signal, and it is not a growth signal either; it is consistent with disclosure tracking investment, expansion, or simply a firm that is doing well enough to write about its plans.
+That is the opposite sign to the displacement hypothesis. It is also small: 1.25 percentage points is within the normal year-to-year variation in a large firm's headcount. The honest reading is that the association is not a displacement signal, and it is not a growth signal either; it is consistent with disclosure tracking investment and expansion.
 
-The workforce-adjacent measure, the one that should carry the signal if any AI language does, is a clean null: +0.0324 with a standard error of 0.0728. The t-statistic is 0.44, and the confidence interval spans economically large effects in both directions. The narrow measure tells us nothing.
+The revenue-per-employee result makes that reading sharper. Regressing the growth of revenue per employee on AI language, with the same fixed effects and controls, gives −0.0294 with a standard error of 0.0141 (t = −2.09). Firms that write more about AI add workers faster than they add revenue. That is the signature of an investment phase, not of substitution: substitution would raise revenue per employee, not lower it.
+
+The workforce-adjacent measure, the one that should carry the signal if any AI language does, is a clean null: +0.0268 with a standard error of 0.0738. The t-statistic is 0.36, and the confidence interval spans economically large effects in both directions. The narrow measure tells us nothing.
 
 ### 4.5 Event study: noisy
 
@@ -188,7 +192,9 @@ That does not make the exercise worthless. A negative result about a measure tha
 
 **Lagged disclosure.** A 10-K describes the prior fiscal year. The information arrives nine to fifteen months after the events it describes, which biases any predictive test toward null.
 
-**No revenue control.** The regressions control for size and fixed effects but not for revenue growth, because revenue was not extracted for this version. A firm growing revenue faster may both disclose more and hire more, which would produce the positive coefficient without any AI effect. This is the most important omitted variable and the first fix a successor should make.
+**Revenue measurement.** Revenue comes from inline XBRL embedded in the filing, parsed by the pipeline; it agrees with the SEC's own company-concept values where both exist. It is a firm-level total and does not break out segments, so a firm that grows one segment while shrinking another is measured as growing.
+
+**Remaining confounding.** Revenue controls address the obvious omitted variable, not all of them. A firm expecting to grow may both hire and write about AI; fixed effects do not resolve that, and the paper does not claim they do.
 
 ---
 
@@ -215,6 +221,8 @@ The filings themselves are public at sec.gov and the pipeline re-downloads them.
 ## 8. Conclusion
 
 AI disclosure in the 10-K went from uncommon to universal in four years, and the part of it that concerns work is a thin, late-arriving layer. Within firms, more AI language does not precede slower headcount growth; it precedes slightly faster growth, by about 1.3 percentage points per standard deviation, and the association is small enough that it should not be read as a cause. Workforce-adjacent language carries no information at all.
+
+The revenue result is the one that makes the mechanism legible: firms writing more about AI expand headcount faster than revenue, which is what investment looks like, not what replacement looks like.
 
 The practical conclusion is that the 10-K is not a substitute for adoption data. A researcher who wants to know whether a firm adopted AI and what happened to its workforce has to measure adoption and the workforce directly. The language is there; the behaviour is not.
 

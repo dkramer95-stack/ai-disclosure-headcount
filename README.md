@@ -10,13 +10,14 @@ A firm-level test of whether the AI language companies file with the SEC predict
 
 | | |
 |---|---|
-| Sample | **643 10-K filings**, 106 firms, a random sample of the 503 S&P 500 constituents, fiscal 2021–2026 |
+| Sample | **643 10-K filings**, 106 firms, a seeded random sample of the 503 S&P 500 constituents, fiscal 2021–2026 |
 | Headcount recovered | 78.8% of sampled filings (regex extraction, no imputation) |
 | Mentions any AI term | **38.2%** of firms in FY2021 → **73.2%** in FY2023 → **94.9%** in FY2025 |
 | AI near workforce language | 23.6% → 49.0% → 66.7% over the same years |
 | Mean intensity | 0.041 AI mentions per 1,000 words → 0.407 |
-| Within-firm effect on next-year headcount | **+1.3 pp per SD** of AI language (t = 2.22), the wrong sign for the displacement story |
-| Workforce-adjacent effect | **null**, t = 0.44 |
+| Within-firm effect on next-year headcount | **+1.25 pp per SD** of AI language (t = 2.18), controlling for revenue growth; the wrong sign for the displacement story |
+| Workforce-adjacent effect | **null**, t = 0.36 |
+| Revenue per employee | AI language predicts **slower** revenue-per-employee growth (t = −2.09), the signature of an investment phase, not substitution |
 
 The 10-K measures narrative, not labour substitution. Firms that write more about AI grow slightly faster, not slower, and the narrow workforce-adjacent measure carries no information at all.
 
@@ -24,7 +25,7 @@ The 10-K measures narrative, not labour substitution. Firms that write more abou
 
 - Not a causal claim. The positive association is consistent with reverse causality: growing firms write more about their plans.
 - Not the full index. It is a random sample of 106 firms, disclosed in the paper.
-- Not revenue-controlled. Revenue growth is the most important omitted variable and the paper says so.
+- Revenue-controlled but not causal. Revenue (from inline XBRL, 98.2% coverage) is in the regressions; a positive coefficient still cannot separate cause from reverse causality.
 
 ## Contents
 
